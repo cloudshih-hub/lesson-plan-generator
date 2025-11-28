@@ -8,25 +8,27 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
-    <!-- 引入 Chart.js 函式庫，用於繪製雷達圖 -->
+    <!-- 引入 Chart.js 函式庫 -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- 引入 html2canvas 函式庫，用於截圖下載 -->
+    <!-- 引入 html2canvas 函式庫 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" xintegrity="sha512-BNaRQnYJYiPSqHHDb58B0yaPfCu+Wgds8Gp/gU33kqBtgNS4tSPHuGibyoVBL5gI9kLmbG4dGGBLezZg+VwbQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <style>
         :root {
-            --brand-color: #004098;
-            --secondary-color: #4a90e2;
-            --background-color: #f8f9fa;
+            /* 品牌視覺規範 */
+            --brand-primary: #004098; /* 深藍：標題、主要按鈕 */
+            --brand-accent: #00daee;  /* 亮藍：圖表、進度條 */
+            
+            /* 漸層設定 */
+            --gradient-line: linear-gradient(90deg, #ffff00 0%, #00daee 100%); /* 裝飾線 */
+            --gradient-tag: linear-gradient(90deg, #1C2271 0%, #004098 100%);  /* 標籤底色 */
+            
+            /* 背景與文字 */
+            --background-color: #f0f7ff; /* 極淺藍底色，清爽舒適 */
             --card-background: #ffffff;
-            --text-color: #212529;
-            --light-text-color: #495057;
-            --border-color: #dee2e6;
-            --accent-color-1: #e6f4ea; /* 合作 */
-            --accent-color-2: #fff8e1; /* 妥協 */
-            --accent-color-3: #fbe9e7; /* 競爭 */
-            --accent-color-4: #e3f2fd; /* 迴避 */
-            --accent-color-5: #f3e5f5; /* 適應 */
-            --shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            --text-color: #333333;
+            --light-text-color: #666666;
+            --border-color: #e0e0e0;
+            --shadow: 0 8px 24px rgba(0, 64, 152, 0.08); /* 帶一點品牌色調的陰影 */
         }
 
         html { scroll-behavior: smooth; }
@@ -35,29 +37,41 @@
             font-family: 'Noto Sans TC', sans-serif;
             background-color: var(--background-color);
             margin: 0;
-            padding: 1rem;
+            padding: 20px 1rem;
             display: flex;
             justify-content: center;
             align-items: flex-start;
+            min-height: 100vh;
             color: var(--text-color);
             -webkit-font-smoothing: antialiased;
-            /* 移除 min-height: 100vh; 以允許內容決定高度 */
-            min-height: auto;
         }
 
         .tool-container {
             width: 100%;
-            max-width: 500px;
+            max-width: 520px;
         }
 
         .tool-card {
             background-color: var(--card-background);
             border-radius: 16px;
-            padding: 1.5rem 1.75rem;
+            padding: 2rem;
             box-shadow: var(--shadow);
-            border: 1px solid var(--border-color);
+            border: 1px solid rgba(255,255,255,0.5); /* 微弱邊框 */
             transition: opacity 0.5s ease, transform 0.5s ease;
             margin-bottom: 1.5rem;
+            position: relative;
+            overflow: hidden; /* 確保漸層條不溢出圓角 */
+        }
+
+        /* 頂部漸層裝飾條 - 現代感 */
+        .tool-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: var(--gradient-line);
         }
 
         .hidden {
@@ -67,179 +81,252 @@
         .visible {
             display: block;
             opacity: 1;
+            animation: fadeIn 0.5s ease-out;
         }
         
-        h1, h2, h3 { color: var(--brand-color); font-weight: 700; }
-        h1 { font-size: 1.75rem; text-align: center; margin: 0 0 0.5rem; }
-        h2 { font-size: 1.5rem; text-align: center; margin: 0 0 1.5rem; }
-        h3 { font-size: 1.2rem; margin: 0 0 0.75rem; border-left: 4px solid var(--secondary-color); padding-left: 0.75rem; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        h1, h2, h3 { color: var(--brand-primary); font-weight: 700; }
+        
+        h1 { 
+            font-size: 1.8rem; 
+            text-align: center; 
+            margin: 0.5rem 0 0.5rem; 
+            letter-spacing: 0.05em;
+        }
+        
+        h2 { 
+            font-size: 1.1rem; 
+            text-align: center; 
+            margin: 0 0 1.5rem; 
+            color: var(--light-text-color);
+            font-weight: 500;
+        }
+        
+        h3 { font-size: 1.3rem; margin: 1.5rem 0 1rem; }
 
-        p { line-height: 1.8; color: var(--light-text-color); }
+        /* 分隔線漸層裝飾 */
+        .divider {
+            height: 2px;
+            background: var(--gradient-line);
+            margin: 1.5rem auto;
+            width: 60px;
+            border-radius: 1px;
+            opacity: 0.7;
+        }
+
+        p { line-height: 1.7; color: var(--light-text-color); margin-bottom: 1rem; }
         .text-center { text-align: center; }
 
+        /* 按鈕優化 */
         button {
             font-family: 'Noto Sans TC', sans-serif;
-            font-size: 1.1rem;
+            font-size: 1.05rem;
             font-weight: 700;
             border: none;
-            border-radius: 12px;
-            padding: 0.8rem 1.5rem;
+            border-radius: 50px; /* 圓角按鈕更現代 */
+            padding: 12px 24px;
             cursor: pointer;
             transition: all 0.3s ease;
             width: 100%;
-            background-color: var(--brand-color);
+            background-color: var(--brand-primary);
             color: white;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 12px rgba(0, 64, 152, 0.2);
         }
         button:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 10px rgba(0, 64, 152, 0.3);
+            box-shadow: 0 6px 16px rgba(0, 64, 152, 0.3);
+            background-color: #003380; /* 深一點的 hover 色 */
         }
         button:disabled {
-            background-color: #ccc;
+            background-color: #e0e0e0;
+            color: #999;
             cursor: not-allowed;
             transform: none;
             box-shadow: none;
         }
-        
-        /* 更新下載按鈕樣式 */
-        #download-btn {
-            background-color: #e9ecef;
-            color: var(--brand-color);
-        }
-        #download-btn:hover {
-            box-shadow: 0 4px 10px rgba(0, 64, 152, 0.3);
-        }
-
-        /* 新增的資源連結樣式 */
-        .resource-link {
-            display: block;
-            margin-top: 1rem;
-            padding: 0.75rem 1rem;
-            background-color: #f0f4f7;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            color: var(--brand-color);
-            font-weight: 500;
-            text-decoration: none;
-            transition: all 0.2s ease;
-        }
-        .resource-link:hover {
-            background-color: #e6f0f7;
-            border-color: #d1e3f1;
-            transform: translateY(-2px);
-        }
 
         /* --- Quiz Screen --- */
-        .progress-bar {
+        .progress-container {
             width: 100%;
-            height: 8px;
-            background-color: #e9ecef;
-            border-radius: 4px;
+            height: 6px;
+            background-color: #edf2f7;
+            border-radius: 3px;
             margin-bottom: 1.5rem;
             overflow: hidden;
         }
         #progress-indicator {
             width: 0%;
             height: 100%;
-            background-color: var(--secondary-color);
-            transition: width 0.3s ease;
+            background-color: var(--brand-accent); /* 亮藍色進度條 */
+            transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 0 8px rgba(0, 218, 238, 0.4); /* 發光效果 */
+        }
+        .question-meta {
+            text-align: right;
+            font-size: 0.9rem;
+            color: var(--brand-primary);
+            font-weight: 700;
+            margin-bottom: 0.5rem;
         }
         .question-text {
-            font-size: 1.1rem;
-            font-weight: 500;
+            font-size: 1.2rem;
+            font-weight: 700;
             margin-bottom: 1.5rem;
             text-align: left;
+            color: var(--text-color);
+            line-height: 1.5;
         }
         .options-container {
             display: flex;
             flex-direction: column;
-            gap: 0.75rem;
+            gap: 12px;
         }
         .option-label {
-            display: block;
+            display: flex;
             background: #fff;
-            border: 2px solid var(--border-color);
+            border: 1px solid var(--border-color);
             border-radius: 12px;
             padding: 1rem;
             cursor: pointer;
             transition: all 0.2s ease;
+            align-items: flex-start; /* 對齊開頭 */
         }
         .option-label:hover {
-            border-color: var(--secondary-color);
-            background-color: #f8f9fa;
+            border-color: var(--brand-accent);
+            background-color: #f8fdff;
+            transform: translateX(4px);
         }
         .option-label input { display: none; }
-        .option-label input:checked + span { font-weight: 700; color: var(--brand-color); }
-        .option-label input:checked + span::before {
-            border-color: var(--brand-color);
-            background-color: var(--brand-color);
-            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='white'%3e%3cpath d='M12.736 3.97a.75.75 0 0 1 1.047 1.078l-7.25 7.5a.75.75 0 0 1-1.065.027L2.22 8.354a.75.75 0 1 1 1.06-1.06l2.724 2.882L12.736 3.97z'/%3e%3c/svg%3e");
+        
+        /* 選中狀態 */
+        .option-label input:checked + span { 
+            font-weight: 700; 
+            color: var(--brand-primary); 
         }
+        .option-label input:checked + span::before {
+            border-color: var(--brand-accent);
+            background-color: var(--brand-accent);
+            box-shadow: 0 0 0 3px rgba(0, 218, 238, 0.2);
+        }
+        
         .option-label span {
             display: flex;
-            align-items: center;
+            align-items: flex-start;
             line-height: 1.6;
+            width: 100%;
         }
         .option-label span::before {
             content: "";
-            width: 1.25em;
-            height: 1.25em;
-            border: 2px solid var(--border-color);
+            width: 18px;
+            height: 18px;
+            border: 2px solid #ccc;
             border-radius: 50%;
-            margin-right: 0.75rem;
+            margin-right: 12px;
+            margin-top: 3px; /* 微調對齊 */
             flex-shrink: 0;
             transition: all 0.2s ease;
         }
-        .quiz-nav { margin-top: 1.5rem; }
+
+        .quiz-nav { margin-top: 2rem; }
 
         /* --- Results Screen --- */
         #results-summary { text-align: center; margin-bottom: 2rem; }
-        #chart-container { margin: 1.5rem 0; }
+        .result-style-name {
+            font-size: 2.2rem;
+            margin: 0.5rem 0;
+            background: var(--gradient-tag);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 800;
+        }
+        
+        #chart-container { 
+            margin: 2rem 0; 
+            position: relative;
+            padding: 10px;
+        }
+
+        /* 風格解析卡片 (Accordion) */
         .accordion-item {
-            border: 1px solid var(--border-color);
+            border: 1px solid #edf2f7;
             border-radius: 12px;
-            margin-bottom: 0.75rem;
+            margin-bottom: 12px;
             overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
         }
         .accordion-header {
-            padding: 1rem 1.25rem;
+            padding: 12px 20px;
             cursor: pointer;
             display: flex;
             justify-content: space-between;
             align-items: center;
             font-weight: 700;
-            font-size: 1.1rem;
+            font-size: 1.05rem;
+            color: white; /* 文字反白 */
+            background: var(--gradient-tag); /* 漸層標籤底色 */
+            transition: filter 0.3s ease;
+        }
+        .accordion-header:hover {
+            filter: brightness(1.1);
         }
         .accordion-header::after {
             content: '＋';
-            font-size: 1.5rem;
+            font-size: 1.2rem;
+            font-weight: 400;
             transition: transform 0.3s ease;
         }
         .accordion-item.active .accordion-header::after {
             transform: rotate(45deg);
         }
         .accordion-content {
-            padding: 0 1.25rem 1.25rem;
+            padding: 0 20px 20px;
             max-height: 0;
             overflow: hidden;
-            transition: max-height 0.4s ease-out, padding 0.4s ease-out;
+            background-color: #fff;
+            transition: max-height 0.4s ease-out;
         }
-        .accordion-content p { margin-bottom: 0.5rem; }
-        .accordion-content strong { color: var(--text-color); }
+        .accordion-content-inner {
+            padding-top: 15px; /* 用 inner div 處理 padding top，避免動畫跳動 */
+        }
+        .accordion-content p { margin-bottom: 0.8rem; font-size: 0.95rem; }
+        .accordion-content strong { color: var(--brand-primary); }
+
         .action-buttons {
             display: flex;
             flex-direction: column;
-            gap: 0.75rem;
-            margin-top: 1.5rem;
+            gap: 12px;
+            margin-top: 2rem;
         }
-        #restart-btn { background-color: #6c757d; }
+        #download-btn { 
+            background-color: var(--brand-primary);
+            background-image: linear-gradient(135deg, var(--brand-primary) 0%, #0056b3 100%);
+        }
+        #restart-btn { 
+            background-color: transparent; 
+            border: 2px solid var(--border-color);
+            color: var(--light-text-color);
+            box-shadow: none;
+        }
+        #restart-btn:hover {
+            background-color: #f8f9fa;
+            border-color: var(--brand-primary);
+            color: var(--brand-primary);
+            transform: none;
+        }
 
         /* Footer */
         .brand-footer {
-            text-align: center; margin-top: 0; font-size: 0.9em; color: #adb5bd;
+            text-align: center; margin-top: 1rem; font-size: 0.9em; color: #adb5bd;
         }
-        .brand-footer a { color: var(--brand-color); text-decoration: none; font-weight: 500; }
+        .brand-footer a { color: var(--brand-primary); text-decoration: none; font-weight: 500; }
+        
+        /* 下載時隱藏的元素 */
+        .downloading .action-buttons, .downloading .brand-footer { display: none; }
+        .downloading { padding: 40px; } /* 增加下載圖片的留白 */
     </style>
 </head>
 <body>
@@ -247,16 +334,23 @@
         <!-- Screen 1: Welcome -->
         <div id="welcome-screen" class="tool-card visible">
             <h1>我的衝突管理風格</h1>
-            <h2 style="font-size: 1.2rem; color: var(--light-text-color);">TKI 測驗與個人化建議</h2>
-            <p class="text-center">面對校園中的各種溝通挑戰，您習慣如何應對？<br>透過 10 個情境題，深入了解自己的衝突管理風格，找到最適合您的溝通策略。</p>
-            <button id="start-btn">開始測驗</button>
+            <h2>TKI 測驗與個人化建議</h2>
+            <div class="divider"></div>
+            <div style="text-align:center; margin-bottom: 2rem;">
+                <img src="https://img.icons8.com/color/96/collaboration.png" alt="Conflict Management" style="width: 80px; height: 80px; opacity: 0.9;">
+            </div>
+            <p class="text-center">面對校園中的各種溝通挑戰，您習慣如何應對？<br>這不是考試，而是一次自我探索的機會。</p>
+            <p class="text-center" style="font-size: 0.9rem;">透過 10 個情境題，我們將提供您溫暖的建議與策略。</p>
+            <div style="margin-top: 2rem;">
+                <button id="start-btn">開始測驗</button>
+            </div>
         </div>
 
         <!-- Screen 2: Quiz -->
         <div id="quiz-screen" class="tool-card hidden">
-            <div class="progress-bar"><div id="progress-indicator"></div></div>
-            <p id="question-number" style="text-align: right; color: var(--light-text-color); margin-bottom: 0.5rem;"></p>
-            <p id="question-text" class="question-text"></p>
+            <div class="progress-container"><div id="progress-indicator"></div></div>
+            <div class="question-meta" id="question-number"></div>
+            <div id="question-text" class="question-text"></div>
             <div id="options-container" class="options-container"></div>
             <div class="quiz-nav">
                 <button id="next-btn" disabled>下一題</button>
@@ -265,15 +359,21 @@
 
         <!-- Screen 3: Results -->
         <div id="results-screen" class="tool-card hidden">
+            <!-- Wrapper for capture -->
             <div id="results-content-to-download">
                 <h1>測驗結果分析</h1>
+                <div class="divider"></div>
                 <div id="results-summary"></div>
+                
                 <div id="chart-container">
                     <canvas id="results-chart"></canvas>
                 </div>
-                <h3>各風格深度解析</h3>
+                
+                <h3 style="text-align: center; margin-bottom: 1rem;">各風格深度解析</h3>
+                <p style="text-align: center; font-size: 0.9rem; margin-bottom: 1.5rem;">點擊下方標籤展開建議</p>
                 <div id="accordion-container"></div>
             </div>
+            
             <div class="action-buttons">
                 <button id="download-btn">下載我的風格分析圖</button>
                 <button id="restart-btn">重新測驗</button>
@@ -281,7 +381,7 @@
         </div>
 
         <footer class="brand-footer">
-            <p>由 <a href="https://flipedu.parenting.com.tw/" target="_blank" rel="noopener noreferrer">翻轉教育</a> 提供</p>
+            <p>由 <a href="https://flipedu.parenting.com.tw/" target="_blank" rel="noopener noreferrer">翻轉教育</a> 溫暖提供</p>
         </footer>
     </div>
 
@@ -308,7 +408,8 @@
         const resultsElements = {
             summary: document.getElementById('results-summary'),
             chartCanvas: document.getElementById('results-chart'),
-            accordion: document.getElementById('accordion-container')
+            accordion: document.getElementById('accordion-container'),
+            downloadArea: document.getElementById('results-content-to-download')
         };
         let myChart;
 
@@ -425,50 +526,45 @@
         ];
 
         const styleInfo = {
-            competing: {  
-                name: '競爭型 (貓頭鷹) 🦉',  
-                color: '#fbe9e7',
+            competing: { 
+                name: '競爭型 (貓頭鷹)',
+                icon: '🦉',
                 desc: '重視個人目標的達成，果斷且不畏懼對抗，像貓頭鷹一樣精準地朝目標前進。',
                 strength: '在需要快速決策、執行重要原則或保護學生權益時，這種風格非常有效率，能迅速穩定局面。',
                 blindspot: '在人際關係中，可能會因為過於堅持己見，而忽略他人感受，讓對方感到壓力或不被尊重。',
-                suggestion: '練習在堅持原則的同時，加入更多「我訊息」的表達，並適時傾聽對方的想法，讓決策更有溫度。',
-                resource: { text: '「我訊息」這樣用才不會變情勒！破解3大誤區', url: 'https://flipedu.parenting.com.tw/article/009595' }
+                suggestion: '建議在堅持原則的同時，可以試著加入更多「我訊息」的表達，並給予對方表達的空間，讓決策更有溫度。'
             },
-            collaborating: {  
-                name: '合作型 (海豚) 🐬',  
-                color: '#e3f2fd',
+            collaborating: { 
+                name: '合作型 (海豚)', 
+                icon: '🐬',
                 desc: '同時重視目標與關係，致力於尋找雙贏的創意解方，如同聰明合作的海豚，共創最大效益。',
                 strength: '能有效處理複雜問題，深化親師生間的信任感。透過整合多方觀點，能產出最有品質的決策。',
                 blindspot: '耗時耗力，並非所有衝突都值得投入如此高的心力。有時在小事上過度追求完美合作，反而會降低效率。',
-                suggestion: '學習判斷議題的重要性。將合作心力用在關鍵的、長期的議題上。在較緊急或次要的問題上，可嘗試「妥協」或「競爭」模式。',
-                resource: { text: '親師溝通100+提問集：多情境實用問題，建立信任與合作關係', url: 'https://flipedu.parenting.com.tw/teacher_resource/529' }
+                suggestion: '建議學習判斷議題的重要性。將寶貴的合作心力用在關鍵的、長期的議題上。在較緊急或次要的問題上，可參考其他模式。'
             },
-            compromising: {  
-                name: '妥協型 (狐狸) 🦊',  
-                color: '#fff8e1',
+            compromising: { 
+                name: '妥協型 (狐狸)', 
+                icon: '🦊',
                 desc: '願意各退一步，尋求快速且雙方都能接受的折衷方案，像狐狸一樣務實且靈活。',
                 strength: '處理中度重要的議題時非常有效率，能快速解決僵局，讓事情繼續前進，是維持團隊運作的潤滑劑。',
                 blindspot: '有時妥協的結果並非「最好」的方案，只是「最不差」的。長期下來，可能導致雙方都沒有真正滿意。',
-                suggestion: '在尋求妥協時，多問一句：「這個方案，我們雙方真的都能接受嗎？或只是暫時應付？」確保妥協的品質。',
-                resource: { text: '親師溝通問答集：聯絡簿&Line回應範本、家長疑難雜症QA', url: 'https://flipedu.parenting.com.tw/teacher_resource/240' }
+                suggestion: '在尋求妥協時，不妨多問一句：「這個方案，我們雙方真的都能接受嗎？或只是暫時應付？」確保妥協的品質。'
             },
-            avoiding: {  
-                name: '迴避型 (烏龜) 🐢',  
-                color: '#f3e5f5',
+            avoiding: { 
+                name: '迴避型 (烏龜)', 
+                icon: '🐢',
                 desc: '選擇暫時不處理衝突，將自己縮進殼裡，以降低緊張關係或爭取思考時間。',
                 strength: '面對無關緊要的小事，或在情緒高度緊張的當下，暫時迴避是冷卻局勢的智慧，能避免說出後悔的話。',
                 blindspot: '若長期迴避重要問題，問題不僅不會消失，還可能惡化，並可能讓他人覺得您不在乎或缺乏擔當。',
-                suggestion: '練習區分「策略性迴避」與「習慣性逃避」。若選擇迴避，可以告訴自己：「我只是『現在』不處理，等我準備好，我會回頭面對它。」',
-                resource: { text: '學生罵髒話怎麼辦？老師回應的4步驟3心法', url: 'https://flipedu.parenting.com.tw/article/007178' }
+                suggestion: '建議區分「策略性迴避」與「習慣性逃避」。若選擇迴避，可以告訴自己：「我只是『現在』不處理，等我準備好，我會回頭面對它。」'
             },
-            accommodating: {  
-                name: '適應型 (泰迪熊) 🐻',  
-                color: '#e6f4ea',
+            accommodating: { 
+                name: '適應型 (泰迪熊)', 
+                icon: '🧸',
                 desc: '優先考慮對方需求與關係和諧，願意犧牲自己的目標，像溫暖的泰迪熊一樣，給予支持與安撫。',
                 strength: '當議題對對方遠比對自己重要時，或當您需要為關係「儲值」時，這是一種維持和諧的大度表現。',
                 blindspot: '長期忽略自身需求，可能會感到委屈或被利用。您的善意也可能被視為理所當然。',
-                suggestion: '在退讓的同時，練習溫和地表達自己的感受與底線。例如：「這次我可以配合你，但也希望下次能聽聽我的想法。」',
-                resource: { text: '壓力大不硬撐！6方法幫助老師不內耗，維持教學續航力', url: 'https://flipedu.parenting.com.tw/article/010088' }
+                suggestion: '在退讓的同時，建議您溫和地表達自己的感受與底線。例如：「這次我可以配合你，但也希望下次能聽聽我的想法。」'
             }
         };
 
@@ -477,18 +573,6 @@
         let scores = { competing: 0, collaborating: 0, compromising: 0, avoiding: 0, accommodating: 0 };
 
         // --- Functions ---
-        // 新增：向父層傳送高度訊息的函式
-        function resizeIframe() {
-            // 確保 parent window 存在，以避免錯誤
-            if (window.parent) {
-                // 發送訊息，包含當前文件的滾動高度
-                window.parent.postMessage({
-                    height: document.body.scrollHeight,
-                    source: 'tki-generator-tool' // 自訂來源，用於識別
-                }, '*'); // * 表示傳送給任何來源
-            }
-        }
-
         function switchScreen(hide, show) {
             hide.classList.remove('visible');
             hide.classList.add('hidden');
@@ -496,8 +580,6 @@
                 show.classList.remove('hidden');
                 show.classList.add('visible');
                 window.scrollTo(0, 0);
-                // 每次切換畫面後，通知父層更新 iframe 高度
-                resizeIframe();
             }, 300);
         }
 
@@ -508,7 +590,7 @@
             }
             const q = questions[currentQuestionIndex];
             quizElements.progress.style.width = `${(currentQuestionIndex / questions.length) * 100}%`;
-            quizElements.qNumber.textContent = `問題 ${currentQuestionIndex + 1} / ${questions.length}`;
+            quizElements.qNumber.textContent = `Q${currentQuestionIndex + 1}`;
             quizElements.qText.textContent = q.text;
             quizElements.options.innerHTML = '';
 
@@ -522,7 +604,6 @@
                 quizElements.options.appendChild(label);
             });
             
-            // Add event listener to radio buttons
             document.querySelectorAll('input[name="option"]').forEach(radio => {
                 radio.addEventListener('change', () => {
                     buttons.next.disabled = false;
@@ -535,31 +616,24 @@
             } else {
                 buttons.next.textContent = '下一題';
             }
-            // 載入新問題後，更新 iframe 高度
-            resizeIframe();
         }
 
         function showResults() {
             quizElements.progress.style.width = '100%';
             
-            // Get sorted results
             const sortedScores = Object.entries(scores).sort(([,a],[,b]) => b-a);
             const primaryStyle = sortedScores[0][0];
             const secondaryStyle = sortedScores[1][0];
 
             resultsElements.summary.innerHTML = `
-                <p>您的主要衝突管理風格是</p>
-                <h2 style="font-size: 2rem; margin-bottom: 0.5rem;">${styleInfo[primaryStyle].name}</h2>
-                <p>其次是 <strong>${styleInfo[secondaryStyle].name}</strong> 風格</p>
-                <p>這代表在面對衝突時，您最傾向於運用「${styles[primaryStyle]}」的策略來應對。以下是您的個人風格雷達圖與深度解析：</p>
+                <p>根據您的回答，您的主要衝突管理風格是</p>
+                <h2 class="result-style-name">${styleInfo[primaryStyle].icon} ${styleInfo[primaryStyle].name}</h2>
+                <p>這代表在面對衝突時，您傾向運用「${styles[primaryStyle]}」策略。<br>
+                其次是 <strong>${styleInfo[secondaryStyle].name}</strong> 風格。</p>
             `;
 
-            // Render Chart
             renderChart();
-            
-            // Build Accordion
             buildAccordion();
-            
             switchScreen(screens.quiz, screens.results);
         }
 
@@ -568,15 +642,17 @@
             const data = {
                 labels: Object.values(styles),
                 datasets: [{
-                    label: '風格傾向分數',
+                    label: '風格傾向',
                     data: Object.values(scores),
                     fill: true,
-                    backgroundColor: 'rgba(74, 144, 226, 0.2)',
-                    borderColor: 'rgb(74, 144, 226)',
-                    pointBackgroundColor: 'rgb(74, 144, 226)',
+                    backgroundColor: 'rgba(0, 218, 238, 0.2)', /* 使用品牌輔助色, 透明度0.2 */
+                    borderColor: '#00daee', /* 品牌輔助色 */
+                    pointBackgroundColor: '#00daee',
                     pointBorderColor: '#fff',
                     pointHoverBackgroundColor: '#fff',
-                    pointHoverBorderColor: 'rgb(74, 144, 226)'
+                    pointHoverBorderColor: '#00daee',
+                    borderWidth: 2,
+                    pointRadius: 4
                 }]
             };
 
@@ -588,33 +664,27 @@
                 type: 'radar',
                 data: data,
                 options: {
-                    elements: {
-                        line: {
-                            borderWidth: 3
-                        }
-                    },
+                    responsive: true,
+                    maintainAspectRatio: false,
                     scales: {
                         r: {
-                            angleLines: {
-                                display: false
-                            },
+                            angleLines: { color: '#e0e0e0' },
+                            grid: { color: '#f0f0f0' },
                             suggestedMin: 0,
                             suggestedMax: Math.max(...Object.values(scores), 4),
                             pointLabels: {
                                 font: {
                                     size: 14,
+                                    family: "'Noto Sans TC', sans-serif",
                                     weight: 'bold'
-                                }
+                                },
+                                color: '#004098' /* 品牌主色 */
                             },
-                            ticks: {
-                                stepSize: 1
-                            }
+                            ticks: { display: false, stepSize: 1 }
                         }
                     },
                     plugins: {
-                        legend: {
-                            display: false
-                        }
+                        legend: { display: false }
                     }
                 }
             });
@@ -622,29 +692,48 @@
 
         function buildAccordion() {
             resultsElements.accordion.innerHTML = '';
-            Object.keys(styleInfo).forEach(key => {
+            // Sort keys based on scores to show dominant styles first
+            const sortedKeys = Object.keys(scores).sort((a,b) => scores[b] - scores[a]);
+
+            sortedKeys.forEach(key => {
                 const info = styleInfo[key];
+                const score = scores[key];
                 const item = document.createElement('div');
                 item.className = 'accordion-item';
+                // Active first item by default
+                const isFirst = key === sortedKeys[0];
+                
                 item.innerHTML = `
-                    <div class="accordion-header" style="background-color: ${info.color};">
-                        ${info.name}
+                    <div class="accordion-header">
+                        <span>${info.icon} ${info.name} <span style="font-size:0.8em; opacity:0.8; font-weight:400; margin-left:8px;">(得分: ${score})</span></span>
                     </div>
                     <div class="accordion-content">
-                        <p><strong>風格描述：</strong>${info.desc}</p>
-                        <p><strong>在教學現場的優勢：</strong>${info.strength}</p>
-                        <p><strong>需要留意的盲點：</strong>${info.blindspot}</p>
-                        <p><strong>給您的行動建議：</strong>${info.suggestion}</p>
-                        <a href="${info.resource.url}" target="_blank" class="resource-link">
-                            推薦閱讀：${info.resource.text}
-                        </a>
+                        <div class="accordion-content-inner">
+                            <p><strong>風格描述：</strong>${info.desc}</p>
+                            <p><strong>優勢：</strong>${info.strength}</p>
+                            <p><strong>盲點：</strong>${info.blindspot}</p>
+                            <p><strong>建議：</strong>${info.suggestion}</p>
+                        </div>
                     </div>
                 `;
                 resultsElements.accordion.appendChild(item);
+                
+                if (isFirst) {
+                   item.classList.add('active');
+                   // We need to wait for DOM to render to set max-height, handled by listener logic below slightly modified
+                }
             });
 
-            // Accordion functionality
-            document.querySelectorAll('.accordion-header').forEach(header => {
+            // Re-select newly created headers
+            const headers = document.querySelectorAll('.accordion-header');
+            
+            // Set initial height for the first active item
+            setTimeout(() => {
+                const firstContent = headers[0].nextElementSibling;
+                firstContent.style.maxHeight = firstContent.scrollHeight + "px";
+            }, 100);
+
+            headers.forEach(header => {
                 header.addEventListener('click', () => {
                     const item = header.parentElement;
                     const content = header.nextElementSibling;
@@ -653,24 +742,21 @@
                         item.classList.remove('active');
                         content.style.maxHeight = null;
                     } else {
-                        // Close other items if you want only one open at a time
-                        // document.querySelectorAll('.accordion-item.active').forEach(activeItem => {
-                        //     activeItem.classList.remove('active');
-                        //     activeItem.querySelector('.accordion-content').style.maxHeight = null;
-                        // });
+                        // Close others
+                        document.querySelectorAll('.accordion-item.active').forEach(activeItem => {
+                           activeItem.classList.remove('active');
+                           activeItem.querySelector('.accordion-content').style.maxHeight = null;
+                        });
+
                         item.classList.add('active');
                         content.style.maxHeight = content.scrollHeight + "px";
                     }
-                    // 每次開合選單時，更新 iframe 高度
-                    resizeIframe();
                 });
             });
         }
         
         // --- Event Listeners ---
         buttons.start.addEventListener('click', () => {
-            currentQuestionIndex = 0;
-            scores = { competing: 0, collaborating: 0, compromising: 0, avoiding: 0, accommodating: 0 };
             switchScreen(screens.welcome, screens.quiz);
             loadQuestion();
         });
@@ -691,32 +777,39 @@
         });
 
         buttons.download.addEventListener('click', () => {
-            const content = document.getElementById('results-content-to-download');
+            const content = resultsElements.downloadArea;
+            
+            // Temporarily style for download
+            content.classList.add('downloading'); // Optional class hook
             buttons.download.textContent = '圖片產生中...';
             buttons.download.disabled = true;
-
-            html2canvas(content, {  
-                scale: 2,  
-                useCORS: true,
-                backgroundColor: getComputedStyle(document.body).backgroundColor
-            }).then(canvas => {
-                const link = document.createElement('a');
-                link.download = '翻轉教育_我的衝突管理風格分析.png';
-                link.href = canvas.toDataURL('image/png');
-                link.click();
-            }).catch(err => {
-                console.error("下載失敗:", err);
-                alert("圖片產生失敗，請稍後再試。");
-            }).finally(() => {
-                buttons.download.textContent = '下載我的風格分析圖';
-                buttons.download.disabled = false;
-            });
+            
+            // Ensure chart is fully rendered before capture
+            setTimeout(() => {
+                html2canvas(content, { 
+                    scale: 2, // High res
+                    useCORS: true,
+                    backgroundColor: '#ffffff', // Force white background for the image
+                    onclone: (clonedDoc) => {
+                        // Make sure the cloned chart is visible
+                        const clonedChart = clonedDoc.getElementById('results-chart');
+                        if(clonedChart) clonedChart.style.display = 'block';
+                    }
+                }).then(canvas => {
+                    const link = document.createElement('a');
+                    link.download = '翻轉教育_我的衝突管理風格分析.png';
+                    link.href = canvas.toDataURL('image/png');
+                    link.click();
+                }).catch(err => {
+                    console.error("下載失敗:", err);
+                    alert("圖片產生失敗，請稍後再試。");
+                }).finally(() => {
+                    content.classList.remove('downloading');
+                    buttons.download.textContent = '下載我的風格分析圖';
+                    buttons.download.disabled = false;
+                });
+            }, 500);
         });
-
-        // 頁面載入時，立即發送高度訊息
-        window.onload = resizeIframe;
-        // 監聽視窗大小變化，動態調整 iframe 高度
-        window.addEventListener('resize', resizeIframe);
     });
     </script>
 </body>
